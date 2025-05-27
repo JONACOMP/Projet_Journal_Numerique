@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ note.title }} | Mon Journal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        :root {
+            --primary-color: #3b82f6;     /* Bleu clair */
+            --secondary-color: #93c5fd;   /* Bleu très clair */
+            --accent-color: #f97316;      /* Orange doux */
+            --danger-color: #ef4444;      /* Rouge */
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --muted-color: #64748b;
+        }
+
+        body {
+            background: linear-gradient(120deg, #e0f2fe, #fff7ed);
+            color: var(--dark-color);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .note-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .note-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 2rem;
+            border-bottom: 4px solid var(--accent-color);
+        }
+
+        .note-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .note-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .note-meta i {
+            margin-right: 0.3rem;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            background: var(--secondary-color);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .note-content {
+            padding: 2rem;
+            white-space: pre-line;
+            background-color: #ffffff;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 1rem;
+            padding: 0 2rem 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+        }
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--danger-color);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .versions-section {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            background: var(--light-color);
+        }
+
+        .versions-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        .versions-section li {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--muted-color);
+        }
+
+        @media (max-width: 768px) {
+            .note-container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .note-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="note-container">
+        <!-- En-tête -->
+        <div class="note-header">
+            <h1 class="note-title">{{ note.title }}</h1>
+            <div class="note-meta">
+                <span><i class="far fa-calendar-alt"></i> Créée le {{ note.created_at|date:"d/m/Y" }}</span>
+                <span><i class="fas fa-sync-alt"></i> Modifiée {{ note.updated_at|timesince }} ago</span>
+                {% if note.notebook %}
+                <span><i class="fas fa-book"></i> {{ note.notebook.title }}</span>
+                {% endif %}
+            </div>
+            
+            {% if note.tags.all %}
+            <div class="tags-container">
+                {% for tag in note.tags.all %}
+                <span class="tag" style="background-color: {{ tag.color }}; color: white;">
+                    {{ tag.name }}
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Contenu -->
+        <div class="note-content">
+            {{ note.content }}
+        </div>
+        
+        <!-- Actions -->
+        <div class="note-actions">
+            {% if can_edit %}
+            {% comment %} <a href="{% url 'notes:edit' note.pk %}" class="btn btn-primary"> {% endcomment %}
+            <a href="" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <form method="post" action="{% url 'notebook:deletenote' note.pk %}" 
+                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette note ?');"
+                style="display: inline;" class="btn btn-danger">
+                {% csrf_token %}
+                <button type="submit" title="Supprimer" style="
+                    background: none;
+                    border: none;
+                    
+                    cursor: pointer;
+                    font-size: 1rem;
+                ">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </form>
+            {% endif %}
+            
+            {% comment %} <a href="{% url 'notes:share' note.pk %}" class="btn btn-outline"> {% endcomment %}
+            <a href="" class="btn btn-outline">
+                <i class="fas fa-share-alt"></i> Partager
+            </a>
+
+            {% comment %} <a href="{% url 'notes:export_pdf' note.pk %}" class="btn btn-outline"> {% endcomment %}
+            <a href="" class="btn btn-outline">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            <a href="/" class="btn btn-outline">
+                <i class="fas fa-home"></i> Acceuil
+            </a>
+        </div>
+        
+        <!-- Historique des versions -->
+        {% if versions %}
+        <div class="versions-section">
+            <h3><i class="fas fa-history"></i> Historique des modifications</h3>
+            <ul>
+                {% for version in versions %}
+                <li>
+                    <small>{{ version.created_at|date:"d/m/Y H:i" }}</small> - 
+                    {{ version.title|truncatechars:40 }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
