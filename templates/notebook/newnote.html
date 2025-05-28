@@ -271,15 +271,15 @@
                             </select>
                         </div>
                     </div>
-                    
                     <div class="form-group" style="flex-grow: 1;">
-                        <label>Tags</label>
+                        <label for="tags_input">Tags</label>
                         <div class="tags-input-container">
+                            <!-- Champ utilisé pour la saisie des tags -->
                             <input type="text" class="tag-input" placeholder="Ajouter des tags...">
-                            <!-- Les tags existants apparaîtront ici -->
                         </div>
-                        <input type="hidden" name="tags" id="tags-hidden">
+                        <input type="hidden" name="tags_input" id="tags-hidden">
                     </div>
+
                 </div>
                 
                 <div class="options-row">
@@ -312,6 +312,67 @@
     </script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tagsInput = document.querySelector('.tag-input');
+            const tagsContainer = document.querySelector('.tags-input-container');
+            const hiddenTagsInput = document.getElementById('tags-hidden');
+            const form = document.getElementById('note-form');
+            let tags = [];
+
+            // Ajouter un tag via Enter ou virgule
+            tagsInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag(tagsInput.value.trim());
+                }
+            });
+
+            // Gérer clic sur la croix (×) pour supprimer un tag
+            tagsContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('tag-remove')) {
+                    const tagToRemove = e.target.parentElement.textContent.trim().slice(0, -1);
+                    tags = tags.filter(tag => tag !== tagToRemove);
+                    updateTagsDisplay();
+                }
+            });
+
+            // Ajouter un tag (fonction réutilisable)
+            function addTag(tagText) {
+                if (tagText && !tags.includes(tagText)) {
+                    tags.push(tagText);
+                    updateTagsDisplay();
+                    tagsInput.value = '';
+                }
+            }
+
+            // Affichage et mise à jour du champ caché
+            function updateTagsDisplay() {
+                tagsContainer.querySelectorAll('.tag-item').forEach(tag => tag.remove());
+                tags.forEach(tag => {
+                    const tagElement = document.createElement('span');
+                    tagElement.className = 'tag-item';
+                    tagElement.innerHTML = `
+                        ${tag}
+                        <span class="tag-remove">×</span>
+                    `;
+                    tagsContainer.insertBefore(tagElement, tagsInput);
+                });
+                hiddenTagsInput.value = tags.join(',');
+            }
+
+            // ➕ Important : Ajouter le tag final avant soumission
+            form.addEventListener('submit', function() {
+                const lastTag = tagsInput.value.trim();
+                if (lastTag && !tags.includes(lastTag)) {
+                    tags.push(lastTag);
+                }
+                updateTagsDisplay(); // Assure la mise à jour du champ caché
+            });
+        });
+    </script>
+
+
+    {% comment %} <script>
         // Gestion dynamique des tags
         document.addEventListener('DOMContentLoaded', function() {
             const tagsInput = document.querySelector('.tag-input');
@@ -358,6 +419,6 @@
                 hiddenTagsInput.value = tags.join(',');
             }
         });
-    </script>
+    </script> {% endcomment %}
 </body>
 </html>

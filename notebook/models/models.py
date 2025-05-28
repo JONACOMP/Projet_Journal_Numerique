@@ -35,10 +35,10 @@ class Note(models.Model):
         return self.title
 
 class Tag(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tags')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)   
     name = models.CharField(max_length=50)
-    color = models.CharField(max_length=10)
+    color = models.CharField(max_length=7, default='#6366f1')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tags')
 
     def __str__(self):
         return f"{self.name} ({self.color})"

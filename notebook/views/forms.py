@@ -6,6 +6,7 @@ class NoteForm(forms.ModelForm):
     tags_input = forms.CharField(
         label='Tags',
         required=False,
+        help_text="Séparez les tags par des virgules",
         widget=forms.TextInput(attrs={
             'placeholder': 'séparés par des virgules',
             'class': 'tag-input-field'
@@ -53,33 +54,36 @@ class NoteForm(forms.ModelForm):
         """Valide et transforme la saisie des tags"""
         tags_str = self.cleaned_data.get('tags_input', '')
         tag_names = [name.strip() for name in tags_str.split(',') if name.strip()]
-        
-        # Limite le nombre de tags
         if len(tag_names) > 5:
             raise ValidationError("Maximum 5 tags autorisés.")
-        
         return tag_names
 
     def save(self, commit=True):
         """Sauvegarde la note avec ses tags"""
         note = super().save(commit=False)
+        note.user = self.user
         
         if commit:
             note.save()
             self.save_m2m()
-            
+            print("premier")
             tag_names = self.cleaned_data['tags_input']
             tags = []
-            
+            print("DEUXIEME")
+            print(tag_names)
             for name in tag_names:
                 tag, created = Tag.objects.get_or_create(
                     name=name.lower(),
                     user=self.user,
                     defaults={'color': self._generate_tag_color()}
                 )
+                print(tag)
                 tags.append(tag)
             
+            note.user = self.user
             note.tags.set(tags)
+        else:
+            print("sinonnnnnnnnnnnnnnnnnn")
         
         return note
 

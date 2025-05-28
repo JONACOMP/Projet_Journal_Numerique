@@ -23,12 +23,8 @@ class NewNoteView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = NoteForm(request.POST, request.FILES, user=request.user)
-    
         if form.is_valid():
-            note = form.save(commit=False)
-            note.user = request.user
-            note.save()
-            form.save_m2m()
+            note = form.save(commit=True)
             return redirect('notebook:detail', pk=note.pk)
         
         context = {
