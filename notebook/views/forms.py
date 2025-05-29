@@ -66,10 +66,8 @@ class NoteForm(forms.ModelForm):
         if commit:
             note.save()
             self.save_m2m()
-            print("premier")
             tag_names = self.cleaned_data['tags_input']
             tags = []
-            print("DEUXIEME")
             print(tag_names)
             for name in tag_names:
                 tag, created = Tag.objects.get_or_create(
@@ -82,8 +80,7 @@ class NoteForm(forms.ModelForm):
             
             note.user = self.user
             note.tags.set(tags)
-        else:
-            print("sinonnnnnnnnnnnnnnnnnn")
+
         
         return note
 
