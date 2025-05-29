@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="fr">
 {% load static %}
 {% load i18n %}
@@ -328,12 +327,37 @@
                         <th style="padding: 0.75rem; text-align: center; border-radius: 0 0.5rem 0 0;">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    {% comment %} <tbody>
                         {% for notebook in notebooks %}
                         <tr style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                             <td style="padding: 0.75rem;">{{ notebook.title }}</td>
                             <td style="padding: 0.75rem;">{{ notebook.created_at|date:"d/m/Y" }}</td>
                             <td style="padding: 0.75rem; text-align: center;">
+                                <form method="post" action="{% url 'notebook:delete' notebook.pk %}" 
+                                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce carnet ?');"
+                                    style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" title="Supprimer" style="
+                                        background: none;
+                                        border: none;
+                                        color: var(--danger-color);
+                                        cursor: pointer;
+                                        font-size: 1rem;
+                                    ">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody> {% endcomment %}
+                    <tbody>
+                        {% for notebook in notebooks %}
+                        <tr onclick="window.location.href='{% url 'notebook:notebook_notes' notebook.pk %}'"
+                            style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; cursor: pointer;">
+                            <td style="padding: 0.75rem;">{{ notebook.title }}</td>
+                            <td style="padding: 0.75rem;">{{ notebook.created_at|date:"d/m/Y" }}</td>
+                            <td style="padding: 0.75rem; text-align: center;" onclick="event.stopPropagation();">
                                 <form method="post" action="{% url 'notebook:delete' notebook.pk %}" 
                                     onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce carnet ?');"
                                     style="display: inline;">

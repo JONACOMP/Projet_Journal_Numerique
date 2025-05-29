@@ -58,6 +58,17 @@ class NoteDetailView(LoginRequiredMixin, permissions.IsOwnerOrSharedReadOnly, De
         
         return context    
 
+def notebook_notes(request, pk):
+    template_name = 'notebook/notes_by_notebook.html'
+    notebook = get_object_or_404(Notebook, pk=pk, user=request.user)
+    notes = Note.objects.filter(notebook=notebook)
+    
+    context = {
+        'notebooks': notebook,
+        'notes': notes,
+    }
+    return render(request, template_name, context)
+    
 
 def notebook_delete(request, pk):
     if request.method == "POST":

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes du carnet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="max-w-7xl mx-auto px-6 py-10">
+        <h1 class="text-3xl font-bold mb-6 text-indigo-700">
+            Notes dans le carnet : {{ notebooks.title }}
+        </h1>
+
+        {% if notes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for note in notes %}
+                    <a href="{% url 'notebook:detail' note.id %}" class="block">
+                        <div class="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 p-5 h-full flex flex-col justify-between">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                                    {{ note.title }}
+                                </h2>
+                                <p class="text-gray-600 text-sm line-clamp-3">
+                                    {{ note.content|truncatewords:30 }}
+                                </p>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-500 flex justify-between items-center">
+                                <span>Créée le {{ note.created_at|date:"d M Y" }}</span>
+                                <div class="flex gap-2">
+                                    {% if note.is_favorite %}
+                                        <span title="Favori" class="text-yellow-500">★</span>
+                                    {% endif %}
+                                    {% if note.is_pinned %}
+                                        <span title="Épinglée" class="text-blue-500">📌</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="mt-10 text-center text-gray-600">
+                Aucune note trouvée dans ce carnet.
+            </div>
+        {% endif %}
+
+        <div class="mt-8">
+            <a href="{% url 'notebook:notebook_notes' notebooks.pk %}" class="inline-block bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                ← Retour aux carnets
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
